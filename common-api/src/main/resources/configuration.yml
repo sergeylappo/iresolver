@@ -1,6 +1,6 @@
 
 administration:
-  connector: jira # bugzilla
+  connectorType: JIRA # BUGZILLA # GITHUB
   processors:
     - issues
     - documentation
@@ -35,6 +35,9 @@ connectors:
     unresolvedQuery: product = Ant, status = Open
     batchSize: 10
     batchDelay: 3000
+
+  github:
+    url: https://github.com/kovaloid/iresolver
 
   confluence:
     url: https://cwiki.apache.org/confluence

@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.jira.client;
+package com.koval.resolver.connector.github.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,7 +12,7 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 import com.koval.resolver.common.api.auth.Credentials;
 import com.koval.resolver.common.api.component.connector.IssueClient;
 import com.koval.resolver.common.api.component.connector.IssueClientFactory;
-import com.koval.resolver.connector.jira.exception.JiraConnectorException;
+import com.koval.resolver.connector.github.exception.JiraConnectorException;
 
 
 public class JiraIssueClientFactory implements IssueClientFactory {

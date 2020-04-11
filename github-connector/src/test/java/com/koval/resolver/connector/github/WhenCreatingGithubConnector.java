@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.jira;
+package com.koval.resolver.connector.github;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.*;
@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,30 +16,30 @@ import com.koval.resolver.common.api.component.connector.IssueReceiver;
 import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
 
 
-public class WhenCreatingJiraConnector {
+public class WhenCreatingGithubConnector {
 
-  private JiraConnector jiraConnector;
+  private GithubConnector githubConnector;
 
   @Before
   public void init() {
     IssueClient client = mock(IssueClient.class);
-    JiraConnectorConfiguration properties = mock(JiraConnectorConfiguration.class);
+    GithubConnectorConfiguration properties = mock(GithubConnectorConfiguration.class);
     List searchResult = mock(List.class);
     when(properties.getResolvedQuery()).thenReturn("resolvedQuery");
     when(properties.getUnresolvedQuery()).thenReturn("unresolvedQuery");
     when(client.search(anyString(), anyInt(), anyInt(), anyList())).thenReturn(searchResult);
-    jiraConnector = new JiraConnector(client, properties);
+    githubConnector = new GithubConnector(client, properties);
   }
 
   @Test
   public void shouldBeAbleToGetResolvedIssuesReceiver() {
-    IssueReceiver receiver = jiraConnector.getResolvedIssuesReceiver();
+    IssueReceiver receiver = githubConnector.getResolvedIssuesReceiver();
     assertFalse("Check next issues", receiver.hasNextIssues());
   }
 
   @Test
   public void shouldBeAbleToGetUnresolvedIssuesReceiver() {
-    IssueReceiver receiver = jiraConnector.getUnresolvedIssuesReceiver();
+    IssueReceiver receiver = githubConnector.getUnresolvedIssuesReceiver();
     assertFalse("Check next issues", receiver.hasNextIssues());
   }
 }

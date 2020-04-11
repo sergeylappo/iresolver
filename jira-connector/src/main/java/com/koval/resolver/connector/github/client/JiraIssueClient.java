@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.jira.client;
+package com.koval.resolver.connector.github.client;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import com.koval.resolver.common.api.bean.issue.IssueField;
 import com.koval.resolver.common.api.component.connector.IssueClient;
 import com.koval.resolver.common.api.component.connector.IssueTransformer;
 import com.koval.resolver.common.api.util.CollectionsUtil;
-import com.koval.resolver.connector.jira.exception.JiraClientException;
+import com.koval.resolver.connector.github.exception.JiraClientException;
 
 
 public class JiraIssueClient implements IssueClient {

@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.jira.core;
+package com.koval.resolver.connector.github.core;
 
 import java.util.List;
 

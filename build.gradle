@@ -52,6 +52,7 @@ sourceSets {
 dependencies {
   compile project(':jira-connector'),
       project(':bugzilla-connector'),
+      project(':github-connector'),
       project(':confluence-connector'),
       project(':issues-processor'),
       project(':documentation-processor'),

@@ -1,0 +1,7 @@
+
+dependencies {
+  compile project(':common-api'),
+          'org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5'
+  testCompile 'junit:junit:4.12',
+      'org.mockito:mockito-core:2.23.4'
+}

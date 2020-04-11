@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.jira.exception;
+package com.koval.resolver.connector.github.exception;
 
 import com.koval.resolver.common.api.exception.ClientException;
 

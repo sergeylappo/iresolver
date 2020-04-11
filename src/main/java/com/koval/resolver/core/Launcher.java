@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
+import com.koval.resolver.common.api.constant.ConnectorType;
+import com.koval.resolver.connector.github.GithubConnector;
+import com.koval.resolver.connector.github.client.GithubIssueClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +28,6 @@ import com.koval.resolver.common.api.component.reporter.ReportGenerator;
 import com.koval.resolver.common.api.configuration.Configuration;
 import com.koval.resolver.common.api.configuration.bean.connectors.BugzillaConnectorConfiguration;
 import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
-import com.koval.resolver.common.api.constant.ConnectorConstants;
 import com.koval.resolver.common.api.constant.ProcessorConstants;
 import com.koval.resolver.common.api.constant.ReporterConstants;
 import com.koval.resolver.common.api.doc2vec.VectorModel;
@@ -34,9 +37,9 @@ import com.koval.resolver.connector.bugzilla.BugzillaConnector;
 import com.koval.resolver.connector.bugzilla.client.BugzillaIssueClientFactory;
 import com.koval.resolver.connector.bugzilla.exception.BugzillaConnectorException;
 import com.koval.resolver.connector.confluence.ConfluenceConnector;
-import com.koval.resolver.connector.jira.JiraConnector;
-import com.koval.resolver.connector.jira.client.JiraIssueClientFactory;
-import com.koval.resolver.connector.jira.exception.JiraConnectorException;
+import com.koval.resolver.connector.github.JiraConnector;
+import com.koval.resolver.connector.github.client.JiraIssueClientFactory;
+import com.koval.resolver.connector.github.exception.JiraConnectorException;
 import com.koval.resolver.exception.IResolverException;
 import com.koval.resolver.processor.confluence.ConfluenceProcessor;
 import com.koval.resolver.processor.confluence.core.ConfluenceDataSetWriter;
@@ -213,25 +216,44 @@ public final class Launcher {
   }
 
   private Connector getConnector(IssueClient issueClient) {
-    String connectorName = configuration.getAdministration().getConnector();
-    if (ConnectorConstants.JIRA.equalsIgnoreCase(connectorName)) {
-      return new JiraConnector(issueClient, configuration.getConnectors().getJira());
-    } else if (ConnectorConstants.BUGZILLA.equalsIgnoreCase(connectorName)) {
-      return new BugzillaConnector(issueClient, configuration.getConnectors().getBugzilla());
-    } else {
-      throw new IResolverException("Could not get connector with name: " + connectorName);
+    ConnectorType connectorType = configuration.getAdministration().getConnectorType();
+    switch (connectorType) {
+      case JIRA:
+        return new JiraConnector(issueClient, configuration.getConnectors().getJira());
+      case BUGZILLA:
+        return new BugzillaConnector(issueClient, configuration.getConnectors().getBugzilla());
+      case GITHUB:
+        return new GithubConnector(issueClient, configuration.getConnectors().getGithub());
+      default:
+        throw new IResolverException("Could not get connector with name: " + connectorType);
     }
   }
 
   private IssueClient getIssueClient() {
-    String connectorName = configuration.getAdministration().getConnector();
-    if (ConnectorConstants.JIRA.equalsIgnoreCase(connectorName)) {
-      return getJiraClientInstance();
-    } else if (ConnectorConstants.BUGZILLA.equalsIgnoreCase(connectorName)) {
-      return getBugzillaClientInstance();
-    } else {
-      throw new IResolverException("Could not get issue client for connector with name: " + connectorName);
+    ConnectorType connectorType = configuration.getAdministration().getConnectorType();
+    switch (connectorType) {
+      case JIRA:
+        return getJiraClientInstance();
+      case BUGZILLA:
+        return getBugzillaClientInstance();
+      case GITHUB:
+        return getGithubClientInstance();
+      default:
+        throw new IResolverException("Could not get issue client for connector with name: " + connectorType);
     }
+  }
+
+  private IssueClient getGithubClientInstance() {
+    GithubConnectorConfiguration connectorConfiguration = configuration.getConnectors().getGithub();
+    GithubIssueClientFactory githubIssueClientFactory = new GithubIssueClientFactory();
+    IssueClient githubClient;
+    if (connectorConfiguration.isAnonymous()) {
+      githubClient = githubIssueClientFactory.getAnonymousClient(connectorConfiguration.getUrl());
+    } else {
+      Credentials credentials = getCredentials(connectorConfiguration.getCredentialsFolder());
+      githubClient = githubIssueClientFactory.getBasicClient(connectorConfiguration.getUrl(), credentials);
+    }
+    return githubClient;
   }
 
   private IssueClient getJiraClientInstance() {
