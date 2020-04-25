@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.github.client;
+package com.koval.resolver.connector.jira.client;
 
 import java.net.URI;
 import java.util.ArrayList;

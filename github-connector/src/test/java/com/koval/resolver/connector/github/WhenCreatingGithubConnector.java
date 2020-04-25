@@ -7,13 +7,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.koval.resolver.common.api.component.connector.IssueClient;
 import com.koval.resolver.common.api.component.connector.IssueReceiver;
-import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
+import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
 
 
 public class WhenCreatingGithubConnector {

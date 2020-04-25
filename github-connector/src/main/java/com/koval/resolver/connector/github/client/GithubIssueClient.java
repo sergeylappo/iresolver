@@ -1,39 +1,31 @@
 package com.koval.resolver.connector.github.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.eclipse.egit.github.core.SearchIssue;
 import org.eclipse.egit.github.core.client.GitHubClient;
-import org.eclipse.egit.github.core.service.IssueService;
-import org.eclipse.egit.github.core.service.RepositoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import com.koval.resolver.common.api.bean.issue.Issue;
 import com.koval.resolver.common.api.bean.issue.IssueField;
 import com.koval.resolver.common.api.component.connector.IssueClient;
-import com.koval.resolver.common.api.component.connector.IssueTransformer;
-import com.koval.resolver.common.api.util.CollectionsUtil;
-import com.koval.resolver.connector.github.exception.GithubClientException;
 
 
 public class GithubIssueClient implements IssueClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GithubIssueClient.class);
+//    private static final Logger LOGGER = LoggerFactory.getLogger(GithubIssueClient.class);
 
-    private final GitHubClient restClient;
+//    private final GitHubClient restClient;
 //    private final IssueTransformer<org.eclipse.egit.github.core.Issue> issueTransformer;
 
     GithubIssueClient(GitHubClient restClient, String browseUrl) {
-        this.restClient = restClient;
+//        this.restClient = restClient;
 //        this.issueTransformer = new GithubIssueTransformer(restClient, browseUrl);
 //    RepositoryService repositoryService = new RepositoryService().getRepository("")
     }

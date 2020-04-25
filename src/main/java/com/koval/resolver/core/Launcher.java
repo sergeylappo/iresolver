@@ -5,53 +5,48 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
-import com.koval.resolver.common.api.constant.ConnectorType;
-import com.koval.resolver.connector.github.GithubConnector;
-import com.koval.resolver.connector.github.client.GithubIssueClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.koval.resolver.common.api.ProcessExecutor;
-import com.koval.resolver.common.api.auth.Credentials;
-import com.koval.resolver.common.api.auth.CredentialsKeeper;
-import com.koval.resolver.common.api.auth.CredentialsProtector;
 import com.koval.resolver.common.api.bean.confluence.ConfluencePage;
 import com.koval.resolver.common.api.bean.issue.IssueField;
 import com.koval.resolver.common.api.bean.result.IssueAnalysingResult;
 import com.koval.resolver.common.api.component.connector.Connector;
 import com.koval.resolver.common.api.component.connector.IssueClient;
+import com.koval.resolver.common.api.component.connector.IssueClientFactory;
 import com.koval.resolver.common.api.component.connector.IssueReceiver;
 import com.koval.resolver.common.api.component.processor.DataSetWriter;
 import com.koval.resolver.common.api.component.processor.IssueProcessor;
 import com.koval.resolver.common.api.component.reporter.ReportGenerator;
 import com.koval.resolver.common.api.configuration.Configuration;
-import com.koval.resolver.common.api.configuration.bean.connectors.BugzillaConnectorConfiguration;
-import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
+import com.koval.resolver.common.api.constant.ConnectorType;
+import com.koval.resolver.common.api.constant.IssueParts;
 import com.koval.resolver.common.api.constant.ProcessorConstants;
 import com.koval.resolver.common.api.constant.ReporterConstants;
 import com.koval.resolver.common.api.doc2vec.VectorModel;
 import com.koval.resolver.common.api.doc2vec.VectorModelCreator;
 import com.koval.resolver.common.api.doc2vec.VectorModelSerializer;
+import com.koval.resolver.common.api.exception.ConnectorException;
 import com.koval.resolver.connector.bugzilla.BugzillaConnector;
 import com.koval.resolver.connector.bugzilla.client.BugzillaIssueClientFactory;
-import com.koval.resolver.connector.bugzilla.exception.BugzillaConnectorException;
 import com.koval.resolver.connector.confluence.ConfluenceConnector;
-import com.koval.resolver.connector.github.JiraConnector;
-import com.koval.resolver.connector.github.client.JiraIssueClientFactory;
-import com.koval.resolver.connector.github.exception.JiraConnectorException;
+import com.koval.resolver.connector.github.GithubConnector;
+import com.koval.resolver.connector.jira.JiraConnector;
+import com.koval.resolver.connector.jira.client.JiraIssueClientFactory;
 import com.koval.resolver.exception.IResolverException;
 import com.koval.resolver.processor.confluence.ConfluenceProcessor;
 import com.koval.resolver.processor.confluence.core.ConfluenceDataSetWriter;
 import com.koval.resolver.processor.documentation.DocumentationProcessor;
 import com.koval.resolver.processor.documentation.core.DocDataSetCreator;
 import com.koval.resolver.processor.issues.IssuesProcessor;
-import com.koval.resolver.processor.issues.core.DataSetCreator;
+import com.koval.resolver.processor.issues.core.IssuesDataSetCreator;
+import com.koval.resolver.processor.issues.granular.GranularIssuesProcessor;
+import com.koval.resolver.processor.issues.granular.core.GranularIssuesDataSetsCreator;
 import com.koval.resolver.processor.issues.test.TestSimilarityProcessor;
 import com.koval.resolver.processor.rules.RuleEngineProcessor;
 import com.koval.resolver.reporter.html.HtmlReportGenerator;
 import com.koval.resolver.reporter.text.TextReportGenerator;
-import com.koval.resolver.util.CommandLineUtil;
 
 
 public final class Launcher {
@@ -68,7 +63,7 @@ public final class Launcher {
     try (IssueClient issueClient = getIssueClient()) {
       Connector connector = getConnector(issueClient);
       IssueReceiver receiver = connector.getResolvedIssuesReceiver();
-      DataSetCreator dataSetCreator = new DataSetCreator(receiver, configuration.getProcessors().getIssues());
+      IssuesDataSetCreator dataSetCreator = new IssuesDataSetCreator(receiver, configuration.getProcessors().getIssues());
       dataSetCreator.create();
     } catch (IOException e) {
       LOGGER.error("Could not create data set file.", e);
@@ -79,6 +74,36 @@ public final class Launcher {
     String dataSetFile = configuration.getProcessors().getIssues().getDataSetFile();
     String vectorModelFile = configuration.getProcessors().getIssues().getVectorModelFile();
     createVectorModel(dataSetFile, vectorModelFile, "Could not create issues vector model file.");
+  }
+
+  public void createGranularIssuesDataSets() {
+    try (IssueClient issueClient = getIssueClient()) {
+      Connector connector = getConnector(issueClient);
+      IssueReceiver receiver = connector.getResolvedIssuesReceiver();
+      GranularIssuesDataSetsCreator dataSetCreator = new GranularIssuesDataSetsCreator(receiver, configuration.getProcessors().getGranularIssues());
+      dataSetCreator.create();
+    } catch (IOException e) {
+      LOGGER.error("Could not create data set files.", e);
+    }
+  }
+
+  public void createGranularIssuesVectorModels() {
+    List<String> affectedIssueParts = configuration.getProcessors().getGranularIssues().getAffectedIssueParts();
+    if (affectedIssueParts.contains(IssueParts.SUMMARY)) {
+      String dataSetFile = configuration.getProcessors().getGranularIssues().getSummaryDataSetFile();
+      String vectorModelFile = configuration.getProcessors().getGranularIssues().getSummaryVectorModelFile();
+      createVectorModel(dataSetFile, vectorModelFile, "Could not create summary granular issues vector model file.");
+    }
+    if (affectedIssueParts.contains(IssueParts.DESCRIPTION)) {
+      String dataSetFile = configuration.getProcessors().getGranularIssues().getDescriptionDataSetFile();
+      String vectorModelFile = configuration.getProcessors().getGranularIssues().getDescriptionVectorModelFile();
+      createVectorModel(dataSetFile, vectorModelFile, "Could not create description granular issues vector model file.");
+    }
+    if (affectedIssueParts.contains(IssueParts.COMMENTS)) {
+      String dataSetFile = configuration.getProcessors().getGranularIssues().getCommentsDataSetFile();
+      String vectorModelFile = configuration.getProcessors().getGranularIssues().getCommentsVectorModelFile();
+      createVectorModel(dataSetFile, vectorModelFile, "Could not create comments granular issues vector model file.");
+    }
   }
 
   public void createDocumentationDataSet() {
@@ -159,6 +184,9 @@ public final class Launcher {
     if (processorNames.contains(ProcessorConstants.ISSUES)) {
       issueProcessors.add(new IssuesProcessor(issueClient, configuration));
     }
+    if (processorNames.contains(ProcessorConstants.GRANULAR_ISSUES)) {
+      issueProcessors.add(new GranularIssuesProcessor(issueClient, configuration));
+    }
     if (processorNames.contains(ProcessorConstants.DOCUMENTATION)) {
       issueProcessors.add(new DocumentationProcessor(configuration));
     }
@@ -231,77 +259,22 @@ public final class Launcher {
 
   private IssueClient getIssueClient() {
     ConnectorType connectorType = configuration.getAdministration().getConnectorType();
+    IssueClientFactory clientFactory;
     switch (connectorType) {
       case JIRA:
-        return getJiraClientInstance();
+        clientFactory = new JiraIssueClientFactory(configuration.getConnectors().getJira());
+        break;
       case BUGZILLA:
-        return getBugzillaClientInstance();
-      case GITHUB:
-        return getGithubClientInstance();
+        clientFactory = new BugzillaIssueClientFactory(configuration.getConnectors().getBugzilla());
+        break;
       default:
         throw new IResolverException("Could not get issue client for connector with name: " + connectorType);
     }
-  }
 
-  private IssueClient getGithubClientInstance() {
-    GithubConnectorConfiguration connectorConfiguration = configuration.getConnectors().getGithub();
-    GithubIssueClientFactory githubIssueClientFactory = new GithubIssueClientFactory();
-    IssueClient githubClient;
-    if (connectorConfiguration.isAnonymous()) {
-      githubClient = githubIssueClientFactory.getAnonymousClient(connectorConfiguration.getUrl());
-    } else {
-      Credentials credentials = getCredentials(connectorConfiguration.getCredentialsFolder());
-      githubClient = githubIssueClientFactory.getBasicClient(connectorConfiguration.getUrl(), credentials);
-    }
-    return githubClient;
-  }
-
-  private IssueClient getJiraClientInstance() {
-    JiraConnectorConfiguration connectorConfiguration = configuration.getConnectors().getJira();
-    JiraIssueClientFactory jiraIssueClientFactory = new JiraIssueClientFactory();
-    IssueClient jiraClient;
     try {
-      if (connectorConfiguration.isAnonymous()) {
-        jiraClient = jiraIssueClientFactory.getAnonymousClient(connectorConfiguration.getUrl());
-      } else {
-        Credentials credentials = getCredentials(connectorConfiguration.getCredentialsFolder());
-        jiraClient = jiraIssueClientFactory.getBasicClient(connectorConfiguration.getUrl(), credentials);
-      }
-    } catch (JiraConnectorException e) {
-      throw new IResolverException("Could not initialize Jira client.", e);
+      return clientFactory.getClient();
+    } catch (ConnectorException e) {
+      throw new IResolverException("Could not initialize client.", e);
     }
-    return jiraClient;
-  }
-
-  private IssueClient getBugzillaClientInstance() {
-    BugzillaConnectorConfiguration connectorConfiguration = configuration.getConnectors().getBugzilla();
-    BugzillaIssueClientFactory bugzillaIssueClientFactory = new BugzillaIssueClientFactory();
-    IssueClient bugzillaClient;
-    try {
-      if (connectorConfiguration.isAnonymous()) {
-        bugzillaClient = bugzillaIssueClientFactory.getAnonymousClient(connectorConfiguration.getUrl());
-      } else {
-        Credentials credentials = getCredentials(connectorConfiguration.getCredentialsFolder());
-        bugzillaClient = bugzillaIssueClientFactory.getBasicClient(connectorConfiguration.getUrl(), credentials);
-      }
-    } catch (BugzillaConnectorException e) {
-      throw new IResolverException("Could not initialize Bugzilla client.", e);
-    }
-    return bugzillaClient;
-  }
-
-  private Credentials getCredentials(String credentialsFolder) {
-    CredentialsProtector protector = new CredentialsProtector();
-    CredentialsKeeper keeper = new CredentialsKeeper(protector, credentialsFolder);
-    Credentials credentials;
-    if (keeper.isStored()) {
-      credentials = keeper.load();
-    } else {
-      String username = CommandLineUtil.getUsername();
-      String password = CommandLineUtil.getPassword();
-      credentials = new Credentials(username, password);
-      keeper.store(credentials);
-    }
-    return credentials;
   }
 }

@@ -5,13 +5,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.koval.resolver.common.api.component.connector.IssueClient;
 import com.koval.resolver.common.api.component.connector.IssueReceiver;
-import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
+import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnectorConfiguration;
 import com.koval.resolver.connector.github.core.GithubIssueReceiver;
 
 

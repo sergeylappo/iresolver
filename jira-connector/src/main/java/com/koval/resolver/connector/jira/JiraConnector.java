@@ -1,10 +1,10 @@
-package com.koval.resolver.connector.github;
+package com.koval.resolver.connector.jira;
 
 import com.koval.resolver.common.api.component.connector.Connector;
 import com.koval.resolver.common.api.component.connector.IssueClient;
 import com.koval.resolver.common.api.component.connector.IssueReceiver;
 import com.koval.resolver.common.api.configuration.bean.connectors.JiraConnectorConfiguration;
-import com.koval.resolver.connector.github.core.JiraIssueReceiver;
+import com.koval.resolver.connector.jira.core.JiraIssueReceiver;
 
 
 public class JiraConnector implements Connector {

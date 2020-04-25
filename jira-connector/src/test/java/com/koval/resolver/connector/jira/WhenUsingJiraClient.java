@@ -1,4 +1,4 @@
-package com.koval.resolver.connector.github;
+package com.koval.resolver.connector.jira;
 
 /*import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
