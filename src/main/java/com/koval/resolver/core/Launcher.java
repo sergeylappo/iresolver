@@ -32,6 +32,7 @@ import com.koval.resolver.connector.bugzilla.BugzillaConnector;
 import com.koval.resolver.connector.bugzilla.client.BugzillaIssueClientFactory;
 import com.koval.resolver.connector.confluence.ConfluenceConnector;
 import com.koval.resolver.connector.github.GithubConnector;
+import com.koval.resolver.connector.github.client.GithubIssueClientFactory;
 import com.koval.resolver.connector.jira.JiraConnector;
 import com.koval.resolver.connector.jira.client.JiraIssueClientFactory;
 import com.koval.resolver.exception.IResolverException;
@@ -266,6 +267,9 @@ public final class Launcher {
         break;
       case BUGZILLA:
         clientFactory = new BugzillaIssueClientFactory(configuration.getConnectors().getBugzilla());
+        break;
+      case GITHUB:
+        clientFactory = new GithubIssueClientFactory(configuration.getConnectors().getGithub());
         break;
       default:
         throw new IResolverException("Could not get issue client for connector with name: " + connectorType);

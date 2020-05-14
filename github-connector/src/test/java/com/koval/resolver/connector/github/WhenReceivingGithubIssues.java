@@ -14,7 +14,7 @@ import com.koval.resolver.common.api.configuration.bean.connectors.GithubConnect
 import com.koval.resolver.connector.github.core.GithubIssueReceiver;
 
 
-public class WhenReceivingJiraIssues {
+public class WhenReceivingGithubIssues {
 
   private IssueReceiver receiver;
 

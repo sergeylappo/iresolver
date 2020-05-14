@@ -1,6 +1,6 @@
 
 administration:
-  connectorType: JIRA # BUGZILLA # GITHUB
+  connectorType: GITHUB #JIRA # BUGZILLA # GITHUB
   processors:
     - issues
     #- granular-issues
@@ -39,6 +39,12 @@ connectors:
 
   github:
     url: https://github.com/kovaloid/iresolver
+    anonymous: true
+    credentialsFolder: ../data/
+    resolvedQuery: macOS
+    unresolvedQuery: macOS
+    batchSize: 10
+    batchDelay: 3000
 
   confluence:
     url: https://cwiki.apache.org/confluence

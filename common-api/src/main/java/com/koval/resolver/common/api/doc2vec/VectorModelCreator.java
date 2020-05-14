@@ -47,12 +47,6 @@ public class VectorModelCreator {
     }
   }
 
-  public VectorModel createFromResource(String dataSetFileName) throws IOException {
-    try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(dataSetFileName)) {
-      return createFromInputStream(inputStream);
-    }
-  }
-
   public VectorModel createFromInputStream(InputStream inputStream) throws IOException {
     LabelAwareSentenceIterator iterator = new LabelAwareListSentenceIterator(inputStream, "|", 0, 1);
     return createVectorModelWithIterator(iterator);

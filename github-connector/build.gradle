@@ -1,7 +1,13 @@
-
 dependencies {
-  compile project(':common-api'),
-          'org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5'
-  testCompile 'junit:junit:4.12',
-      'org.mockito:mockito-core:2.23.4'
+    compile project(':common-api'),
+            'org.eclipse.mylyn.github:org.eclipse.egit.github.core:5.7.0.202003110725-r',
+            'com.google.code.gson:gson:2.8.6'
+    testCompile 'junit:junit:4.12',
+            'org.mockito:mockito-core:2.23.4'
+}
+
+repositories {
+    maven {
+        url 'https://repo.eclipse.org/content/repositories/egit-releases/'
+    }
 }

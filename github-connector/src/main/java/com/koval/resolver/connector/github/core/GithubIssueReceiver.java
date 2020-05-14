@@ -1,8 +1,8 @@
 package com.koval.resolver.connector.github.core;
 
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,12 +57,12 @@ public class GithubIssueReceiver implements IssueReceiver {
 
   @Override
   public List<Issue> getNextIssues() {
-//    List<Issue> searchResult = client.search(query, batchSize, currentIndex, fields);
-//    searchResult.forEach(issue ->
-//        LOGGER.info("{}: {} summary words, {} description words, {} comments, {} attachments", issue.getKey(),
-//            countWords(issue.getSummary()), countWords(issue.getDescription()), issue.getComments().size(),
-//            issue.getAttachments().size())
-//    );
+    List<Issue> searchResult = client.search(query, batchSize, currentIndex, Collections.emptyList());
+    searchResult.forEach(issue ->
+        LOGGER.info("{}: {} summary words, {} description words, {} comments, {} attachments", issue.getKey(),
+            countWords(issue.getSummary()), countWords(issue.getDescription()), issue.getComments().size(),
+            issue.getAttachments().size())
+    );
     currentIndex += batchSize;
     LOGGER.info("Progress {}/{}", Math.min(currentIndex, finishIndex), finishIndex);
     if (batchDelay != 0) {
@@ -71,8 +71,7 @@ public class GithubIssueReceiver implements IssueReceiver {
     progressMonitor.endMeasuringBatchTime();
     LOGGER.info("Remaining time: {}", progressMonitor.getFormattedRemainingTime(
             Math.min(currentIndex, finishIndex)));
-//    return searchResult;
-    throw new NotImplementedException("Not implemented yet");
+    return searchResult;
   }
 
   private int countWords(String text) {
